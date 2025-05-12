@@ -1,173 +1,180 @@
 ---
-
 - name: Clean previous runs of k3s-init
-  systemd:
+  ansible.builtin.systemd:
     name: k3s-init
     state: stopped
   failed_when: false
 
 - name: Clean previous runs of k3s-init
-  command: systemctl reset-failed k3s-init
+  ansible.builtin.command: systemctl reset-failed k3s-init
   failed_when: false
   changed_when: false
   args:
-    warn: false  # The ansible systemd module does not support reset-failed
+    warn: false # The ansible systemd module does not support reset-failed
 
 - name: Create manifests directory on first master
-  file:
+  ansible.builtin.file:
     path: /var/lib/rancher/k3s/server/manifests
     state: directory
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
 
 - name: Copy vip rbac manifest to first master
-  template:
+  ansible.builtin.template:
     src: "vip.rbac.yaml.j2"
     dest: "/var/lib/rancher/k3s/server/manifests/vip-rbac.yaml"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
 
 - name: Copy vip manifest to first master
-  template:
+  ansible.builtin.template:
     src: "vip.yaml.j2"
     dest: "/var/lib/rancher/k3s/server/manifests/vip.yaml"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
   when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
 
-- name: Copy metallb namespace manifest to first master
-  template:
-    src: "metallb.namespace.j2"
-    dest: "/var/lib/rancher/k3s/server/manifests/metallb-namespace.yaml"
-    owner: root
-    group: root
-    mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
-
-- name: Copy metallb ConfigMap manifest to first master
-  template:
-    src: "metallb.ipaddresspool.j2"
-    dest: "/var/lib/rancher/k3s/server/manifests/metallb-configmap.yaml"
-    owner: root
-    group: root
-    mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
-
-- name: Copy metallb main manifest to first master
-  template:
-    src: "metallb.yaml.j2"
-    dest: "/var/lib/rancher/k3s/server/manifests/metallb.yaml"
-    owner: root
-    group: root
-    mode: 0644
-  when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
-
+# - name: Copy metallb namespace manifest to first master
+#   ansible.builtin.template:
+#     src: "metallb.namespace.j2"
+#     dest: "/var/lib/rancher/k3s/server/manifests/metallb-namespace.yaml"
+#     owner: root
+#     group: root
+#     mode: "0644"
+#   when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+# - name: Copy metallb ConfigMap manifest to first master
+#   ansible.builtin.template:
+#     src: "metallb.ipaddresspool.j2"
+#     dest: "/var/lib/rancher/k3s/server/manifests/metallb-configmap.yaml"
+#     owner: root
+#     group: root
+#     mode: "0644"
+#   when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
+# - name: Copy metallb main manifest to first master
+#   ansible.builtin.template:
+#     src: "metallb.yaml.j2"
+#     dest: "/var/lib/rancher/k3s/server/manifests/metallb.yaml"
+#     owner: root
+#     group: root
+#     mode: "0644"
+#   when: ansible_host == hostvars[groups['master'][0]]['ansible_host'] | default(groups['master'][0])
 - name: Init cluster inside the transient k3s-init service
-  command:
+  ansible.builtin.command:
     cmd: "systemd-run -p RestartSec=2 \
-                      -p Restart=on-failure \
-                      --unit=k3s-init \
-                      k3s server {{ server_init_args }}"
+      -p Restart=on-failure \
+      --unit=k3s-init \
+      k3s server {{ server_init_args }}"
     creates: "{{ systemd_dir }}/k3s.service"
-  args:
-    warn: false  # The ansible systemd module does not support transient units
+  # args:
+  #   warn: false # The ansible systemd module does not support transient units
 
 - name: Verification
   block:
     - name: Verify that all nodes actually joined (check k3s-init.service if this fails)
-      command:
+      ansible.builtin.command:
         cmd: k3s kubectl get nodes -l "node-role.kubernetes.io/master=true" -o=jsonpath="{.items[*].metadata.name}"
       register: nodes
       until: nodes.rc == 0 and (nodes.stdout.split() | length) == (groups['master'] | length)
       retries: "{{ retry_count | default(20) }}"
       delay: 10
       changed_when: false
+      when: groups['master'] | length > 1
+
+    - name: Verify single master node is Ready
+      ansible.builtin.command:
+        cmd: k3s kubectl get node -o jsonpath="{.items[0].status.conditions[?(@.type=='Ready')].status}"
+      register: single_master_status
+      until: single_master_status.stdout == "True"
+      retries: "{{ retry_count | default(20) }}"
+      delay: 10
+      changed_when: false
+      when: groups['master'] | length == 1
   always:
     - name: Kill the temporary service used for initialization
-      systemd:
+      ansible.builtin.systemd:
         name: k3s-init
         state: stopped
       failed_when: false
 
 - name: Copy K3s service file
   register: k3s_service
-  template:
+  ansible.builtin.template:
     src: "k3s.service.j2"
     dest: "{{ systemd_dir }}/k3s.service"
     owner: root
     group: root
-    mode: 0644
+    mode: "0644"
 
 - name: Enable and check K3s service
-  systemd:
+  ansible.builtin.systemd:
     name: k3s
-    daemon_reload: yes
+    daemon_reload: true
     state: restarted
-    enabled: yes
+    enabled: true
 
 - name: Wait for node-token
-  wait_for:
+  ansible.builtin.wait_for:
     path: /var/lib/rancher/k3s/server/node-token
 
 - name: Register node-token file access mode
-  stat:
+  ansible.builtin.stat:
     path: /var/lib/rancher/k3s/server
   register: p
 
 - name: Change file access node-token
-  file:
+  ansible.builtin.file:
     path: /var/lib/rancher/k3s/server
     mode: "g+rx,o+rx"
 
 - name: Read node-token from master
-  slurp:
+  ansible.builtin.slurp:
     src: /var/lib/rancher/k3s/server/node-token
   register: node_token
 
 - name: Store Master node-token
-  set_fact:
+  ansible.builtin.set_fact:
     token: "{{ node_token.content | b64decode | regex_replace('\n', '') }}"
 
 - name: Restore node-token file access
-  file:
+  ansible.builtin.file:
     path: /var/lib/rancher/k3s/server
     mode: "{{ p.stat.mode }}"
 
 - name: Create directory .kube
-  file:
+  ansible.builtin.file:
     path: ~{{ ansible_user }}/.kube
     state: directory
     owner: "{{ ansible_user }}"
     mode: "u=rwx,g=rx,o="
 
 - name: Copy config file to user home directory
-  copy:
+  ansible.builtin.copy:
     src: /etc/rancher/k3s/k3s.yaml
     dest: ~{{ ansible_user }}/.kube/config
-    remote_src: yes
+    remote_src: true
     owner: "{{ ansible_user }}"
     mode: "u=rw,g=,o="
 
 - name: Configure kubectl cluster to https://{{ apiserver_endpoint }}:6443
-  command: >-
+  ansible.builtin.command: >-
     k3s kubectl config set-cluster default
       --server=https://{{ apiserver_endpoint }}:6443
       --kubeconfig ~{{ ansible_user }}/.kube/config
   changed_when: true
 
 - name: Create kubectl symlink
-  file:
+  ansible.builtin.file:
     src: /usr/local/bin/k3s
     dest: /usr/local/bin/kubectl
     state: link
 
 - name: Create crictl symlink
-  file:
+  ansible.builtin.file:
     src: /usr/local/bin/k3s
     dest: /usr/local/bin/crictl
     state: link
