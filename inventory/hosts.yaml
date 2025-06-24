@@ -16,8 +16,8 @@ all:
           ansible_python_interpreter: /usr/bin/python3
     servers:
       hosts:
-        linux-sandbox:
-          ansible_host: 192.168.86.133
+        archivebox:
+          ansible_host: 192.168.86.139
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
@@ -85,7 +85,7 @@ all:
     special:
       hosts:
         rasberrypi:
-          ansible_host: rasberrypi.local.lan
+          ansible_host: rasberrypi.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
@@ -100,6 +100,12 @@ all:
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         postgresql:
           ansible_host: postgresql.homelab.lan
+          ansible_connection: ssh
+          ansible_port: 22
+          ansible_user: tbryant
+          ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
+        redis:
+          ansible_host: redis.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
