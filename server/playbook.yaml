@@ -5,7 +5,7 @@
   gather_facts: true
   roles:
     - role: alloy
-      alloy_loki_url: "https://loki.local.timmybtech.com:3100"
+      alloy_loki_url: "https://loki.local.timmybtech.com/loki/api/v1/push"
       alloy_custom_args: "--server.http.listen-addr=0.0.0.0:12345"
       alloy_state: present # or latest/absent
       tags: [alloy, monitoring, logging]
