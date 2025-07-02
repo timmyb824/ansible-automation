@@ -15,11 +15,11 @@
   become: true
   when: tailscale_state == "present"
 
-- name: Install Tailscale package
+- name: Install/Remove Tailscale package
   ansible.builtin.apt:
     name: tailscale
     state: "{{ tailscale_state }}"
-    update_cache: yes
+    update_cache: true
   become: true
 
 - name: Remove Tailscale repository and key
