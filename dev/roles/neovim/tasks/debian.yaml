@@ -34,7 +34,7 @@
     neovim_package: >-
       {{
         'nvim-linux-arm64.tar.gz' if target_arch == 'arm64'
-        else 'nvim-linux64.tar.gz' if target_arch == 'x86_64'
+        else 'nvim-linux-x86_64.tar.gz' if target_arch == 'x86_64'
         else 'unsupported'
       }}
 
