@@ -1,4 +1,8 @@
 ---
+# TO CONNECT TO A NEW SERVER USE:
+# ansible_user: user
+# ansible_ssh_pass: password
+# ansible_ssh_common_args: "-o PreferredAuthentications=password -o PubkeyAuthentication=no -o IdentitiesOnly=yes"
 all:
   children:
     vagrant:
@@ -104,6 +108,12 @@ all:
           ansible_port: 22
           ansible_user: tbryant
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
+        mariadb:
+          ansible_host: mariadb.homelab.lan
+          ansible_connection: ssh
+          ansible_port: 22
+          ansible_user: tbryant
+          ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
     k8s:
       hosts:
         k3s-0:
@@ -164,6 +174,12 @@ all:
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         proxmox3:
           ansible_host: proxmox3.homelab.lan
+          ansible_connection: ssh
+          ansible_port: 22
+          ansible_user: tbryant
+          ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
+        proxmox4:
+          ansible_host: proxmox4.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
