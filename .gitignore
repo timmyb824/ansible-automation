@@ -2,7 +2,6 @@
 .vagrant/
 servers/secrets/SECRETS.md
 servers/Archive/
-.vault-pass
 .venv/
 AARCHIVE/
 .ansible/
