@@ -104,7 +104,7 @@
 - name: Log existing zellij installation
   ansible.builtin.debug:
     msg: "Zellij is already installed"
-  when: 
+  when:
     - zellij_check.rc == 0
     - zellij_state == 'present'
 
