@@ -1,5 +1,6 @@
 ---
 # TO CONNECT TO A NEW SERVER USE:
+# MUST INSTALL sshpass ON THE SERVER RUNNING THE ANSIBLE SCRIPT
 # ansible_user: user
 # ansible_ssh_pass: password
 # ansible_ssh_common_args: "-o PreferredAuthentications=password -o PubkeyAuthentication=no -o IdentitiesOnly=yes"
@@ -76,6 +77,12 @@ all:
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         unbound-secondary:
           ansible_host: 192.168.86.151
+          ansible_connection: ssh
+          ansible_port: 22
+          ansible_user: tbryant
+          ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
+        netbox:
+          ansible_host: 192.168.86.110
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
