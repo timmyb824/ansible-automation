@@ -1,0 +1,6 @@
+---
+k3s_image_prune_binary: k3s
+k3s_image_prune_namespace: k8s.io
+k3s_image_prune_prune_all: true
+k3s_image_prune_extra_args: []
+k3s_image_prune_run: true

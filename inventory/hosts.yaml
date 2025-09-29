@@ -116,37 +116,37 @@ all:
     k8s:
       hosts:
         k3s-0:
-          ansible_host: vm310.homelab.lan
+          ansible_host: k3s-0.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         k3s-1:
-          ansible_host: vm313.homelab.lan
+          ansible_host: k3s-1.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         k3s-2:
-          ansible_host: vm314.homelab.lan
+          ansible_host: k3s-2.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         k3s-0-worker:
-          ansible_host: vm320.homelab.lan
+          ansible_host: k3s-0-worker.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         k3s-1-worker:
-          ansible_host: vm321.homelab.lan
+          ansible_host: k3s-1-worker.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant
           ansible_ssh_private_key_file: ~/.ssh/id_master_key_nopass
         k3s-2-worker:
-          ansible_host: vm322.homelab.lan
+          ansible_host: k3s-2-worker.homelab.lan
           ansible_connection: ssh
           ansible_port: 22
           ansible_user: tbryant

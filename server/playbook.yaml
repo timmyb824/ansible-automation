@@ -20,6 +20,10 @@
       podman_symlink_docker: false
       tags: [podman, containers]
 
+    - role: k3s_image_prune
+      tags: [k3s_image_prune, k3s, maintenance]
+      when: "'k8s' in group_names"
+
 - name: Upgrade Prometheus
   hosts: prometheus
   become: true
