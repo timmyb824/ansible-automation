@@ -8,6 +8,7 @@
 - name: K3s Image Prune | Run container image prune
   ansible.builtin.command:
     cmd: "{{ k3s_image_prune_command }}"
+  become: true
   register: k3s_image_prune_result
   changed_when: >-
     (k3s_image_prune_result.stdout ~ k3s_image_prune_result.stderr)
