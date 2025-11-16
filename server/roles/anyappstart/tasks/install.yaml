@@ -1,0 +1,25 @@
+---
+- name: Ensure we are on a Debian/Ubuntu system
+  ansible.builtin.assert:
+    that: ansible_os_family == 'Debian'
+    fail_msg: "anyappstart role currently only supports Debian/Ubuntu via .deb packages."
+
+- name: Download AnyAppStart .deb package
+  ansible.builtin.get_url:
+    url: "{{ anyappstart_deb_url }}"
+    dest: "/tmp/AnyAppStart_{{ anyappstart_version }}_linux_amd64.deb"
+    mode: "0644"
+  register: anyappstart_deb
+
+- name: Install AnyAppStart .deb package
+  ansible.builtin.apt:
+    deb: "{{ anyappstart_deb.dest }}"
+    state: present
+    update_cache: true
+
+- name: Enable and start AnyAppStart systemd service for user
+  ansible.builtin.systemd:
+    name: "AnyAppStart@{{ anyappstart_service_user }}.service"
+    enabled: true
+    state: started
+    daemon_reload: true

@@ -1,0 +1,10 @@
+---
+- name: Map anyappstart_state to task file
+  ansible.builtin.set_fact:
+    anyappstart_task_file: >-
+      {{ 'install.yaml' if anyappstart_state in ['present', 'latest']
+         else 'uninstall.yaml' if anyappstart_state == 'absent'
+         else 'install.yaml' }}
+
+- name: AnyAppStart | Ensure state is correct
+  ansible.builtin.include_tasks: "{{ anyappstart_task_file }}"

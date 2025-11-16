@@ -1,0 +1,17 @@
+---
+- name: Ensure we are on a Debian/Ubuntu system
+  ansible.builtin.assert:
+    that: ansible_os_family == 'Debian'
+    fail_msg: "anyappstart role currently only supports Debian/Ubuntu via .deb packages."
+
+- name: Stop and disable AnyAppStart systemd service for user
+  ansible.builtin.systemd:
+    name: "AnyAppStart@{{ anyappstart_service_user }}.service"
+    enabled: false
+    state: stopped
+    daemon_reload: true
+
+- name: Remove AnyAppStart package
+  ansible.builtin.apt:
+    name: "{{ anyappstart_package_name }}"
+    state: absent
