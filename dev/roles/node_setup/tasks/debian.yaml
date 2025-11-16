@@ -33,7 +33,7 @@
   failed_when: false
 
 - name: Initialize fnm and install Node.js
-  when: npm_check.rc != 0 and fnm_check.rc == 0
+  when: fnm_check.rc == 0
   block:
     - name: Get fnm environment variables
       ansible.builtin.shell: |
@@ -87,3 +87,18 @@
     - name: Update PATH with Node.js location
       ansible.builtin.set_fact:
         ansible_env: "{{ ansible_env | combine({'PATH': node_path.stdout | dirname + ':' + ansible_env.PATH}) }}"
+
+    - name: Set Node.js version as fnm default
+      ansible.builtin.shell: |
+        export PATH="{{ ansible_env.HOME }}/.cargo/bin:$PATH"
+        eval "$(fnm env --use-on-cd)"
+        fnm default {{ node_version }}
+      args:
+        executable: /bin/bash
+      register: node_default
+      changed_when: "'Default node version set' in node_default.stdout or node_default.rc == 0"
+
+- name: Fail if fnm is not available
+  ansible.builtin.fail:
+    msg: "fnm is not available in PATH. Please ensure fnm is installed."
+  when: fnm_check.rc != 0

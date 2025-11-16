@@ -59,7 +59,7 @@
 
     - role: node_setup
       node_setup_state: present
-      node_version: "20"
+      node_version: "21.1.0"
       npm_packages_state: latest
       tags: [node, dev_tools]
 

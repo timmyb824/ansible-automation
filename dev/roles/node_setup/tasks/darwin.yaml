@@ -25,8 +25,8 @@
   changed_when: false
   failed_when: false
 
-- name: Install Node.js using fnm
-  when: npm_check.rc != 0 and fnm_check.rc == 0
+- name: Install and use Node.js using fnm
+  when: fnm_check.rc == 0
   block:
     - name: Install Node.js version
       ansible.builtin.shell: |
@@ -44,7 +44,15 @@
       register: node_use
       changed_when: "'now using' in node_use.stdout"
 
+    - name: Set Node.js version as fnm default
+      ansible.builtin.shell: |
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+        eval "$(fnm env --use-on-cd)"
+        fnm default {{ node_version }}
+      register: node_default
+      changed_when: "'Default node version set' in node_default.stdout or node_default.rc == 0"
+
 - name: Fail if fnm is not available
   ansible.builtin.fail:
     msg: "fnm is not available in PATH. Please ensure fnm is installed via Homebrew."
-  when: npm_check.rc != 0 and fnm_check.rc != 0
+  when: fnm_check.rc != 0
