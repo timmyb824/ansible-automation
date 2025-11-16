@@ -1,8 +1,8 @@
 ---
-anyappstart_state: present  # present|latest|absent
+anyappstart_state: present # present|latest|absent
 anyappstart_version: "0.1.6"
-anyappstart_package_type: "deb"  # deb|rpm (role assumes deb on Ubuntu)
+anyappstart_package_type: "deb" # deb|rpm (role assumes deb on Ubuntu)
 anyappstart_deb_url: "https://github.com/aceberg/AnyAppStart/releases/download/0.1.6/AnyAppStart_0.1.6_linux_amd64.deb"
 anyappstart_rpm_url: "https://github.com/aceberg/AnyAppStart/releases/download/0.1.6/AnyAppStart_0.1.6_linux_amd64.rpm"
 anyappstart_package_name: "anyappstart"
-anyappstart_service_user: "{{ ansible_user_id }}"
+anyappstart_service_user: "{{ ansible_env.SUDO_USER | default(ansible_user_id) }}"

@@ -22,6 +22,7 @@
 
     - role: anyappstart
       anyappstart_state: present # or latest/absent
+      anyappstart_service_user: "root"
       tags: [anyappstart, apps]
 
     - role: k3s_image_prune
