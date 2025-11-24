@@ -5,6 +5,11 @@
       {{ k3s_image_prune_binary }} ctr -n {{ k3s_image_prune_namespace }} image prune{% if k3s_image_prune_prune_all %} --all{% endif %}{% if k3s_image_prune_extra_args %} {{ k3s_image_prune_extra_args | join(' ') }}{% endif %}
   when: k3s_image_prune_run | bool
 
+- name: K3s Image Prune | Debug built command
+  ansible.builtin.debug:
+    var: k3s_image_prune_command
+  when: k3s_image_prune_run | bool
+
 - name: K3s Image Prune | Run container image prune
   ansible.builtin.command:
     cmd: "{{ k3s_image_prune_command }}"
@@ -14,6 +19,13 @@
     (k3s_image_prune_result.stdout ~ k3s_image_prune_result.stderr)
     is search('deleted|removed', ignorecase=True)
   failed_when: k3s_image_prune_result.rc != 0
+  when:
+    - k3s_image_prune_run | bool
+    - not ansible_check_mode
+
+- name: K3s Image Prune | Debug command result
+  ansible.builtin.debug:
+    var: k3s_image_prune_result
   when:
     - k3s_image_prune_run | bool
     - not ansible_check_mode
